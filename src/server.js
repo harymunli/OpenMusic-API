@@ -1,9 +1,9 @@
 const Hapi = require('@hapi/hapi');
-const notes = require('./api/notes');
-const NotesService = require('./services/inMemory/NotesService');
+const AlbumService = require('./services/AlbumService');
+const albums = require('./api/albums');
 
 const init = async () => {
-  const notesService = new NotesService();
+  //const albumService = new AlbumService();
   const server = Hapi.server({
     port: 5000,
     host: process.env.NODE_ENV !== 'production' ? 'localhost' : '0.0.0.0',
@@ -14,12 +14,13 @@ const init = async () => {
     },
   });
 
-  await server.register({
-    plugin: notes,
-    options: {
-      service: notesService,
-    },
-  });
+  try{
+    await server.register({
+      plugin: albums,
+    });
+  }catch(e){
+    //
+  }
 
   await server.start();
   console.log(`Server berjalan pada ${server.info.uri}`);
