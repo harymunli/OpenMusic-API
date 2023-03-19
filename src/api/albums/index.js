@@ -1,13 +1,11 @@
 const AlbumHandler = require('./handler');
 const routes = require('./routes');
-const AlbumService = require('../../services/AlbumService');
 
 const albums = {
   name: 'albums',
   version: '1.0.0',
-  register: async (server, {service}) => {
-    albumService = new AlbumService() 
-    const albumHandler = new AlbumHandler(albumService);
+  register: async (server, {service, exception}) => {
+    const albumHandler = new AlbumHandler(service, exception);
     server.route(routes(albumHandler));
   },
 };

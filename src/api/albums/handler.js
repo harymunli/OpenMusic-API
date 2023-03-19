@@ -1,14 +1,19 @@
+const ClientError = require("../../exception/ClientError")
+
 class AlbumHandler {
-    constructor(service){
+    constructor(service, validator){
         this._service = service;
+        this._validator = validator;
+
         this.postAlbumHandler = this.postAlbumHandler.bind(this);
         this.getAlbumByIdHandler = this.getAlbumByIdHandler.bind(this);
-        this.putAlbumByHandler = this.putAlbumByHandler.bind(this);
-        this.deleteNoteByIdHandler = this.deleteNoteByIdHandler.bind(this);
+        this.putAlbumByIdHandler = this.putAlbumByIdHandler.bind(this);
+        this.deleteAlbumByIdHandler = this.deleteAlbumByIdHandler.bind(this);
     }
 
     postAlbumHandler(request, h){
         try{
+            this._validator.validateAlbumPayload(request.payload);
             const{name, year} = request.payload;
             const albumId = this._service.addAlbum({ name, year});
             const response = h.response({
@@ -20,11 +25,12 @@ class AlbumHandler {
             response.code(201);
             return response;
         }catch(e){
+            console.log(e);
             const response = h.response({
                 status: 'fail',
-                message: e
+                message: e.message
             });
-            response.code(400);
+            //response.code(e.statusCode);
             return response;
         }
     }
@@ -42,7 +48,7 @@ class AlbumHandler {
         return response;
     }
 
-    putAlbumByHandler(request, h) {
+    putAlbumByIdHandler(request, h) {
         try{
             const {id} = request.params;
             this._service.editAlbumById(id, request.payload);
@@ -62,7 +68,7 @@ class AlbumHandler {
         }
     }
 
-    deleteNoteByIdHandler(request, h){
+    deleteAlbumByIdHandler(request, h){
         try {
             const { id } = request.params;
             this._service.deleteAlbumById(id);
