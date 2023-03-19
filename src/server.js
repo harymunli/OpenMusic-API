@@ -14,16 +14,16 @@ const init = async () => {
     },
   });
 
-  try{
+  // try{
     await server.register({
       plugin: albums,
       options: {
         service: albumService
       }
     });
-  }catch(e){
-    //
-  }
+  // }catch(e){
+  //   //
+  // }
 
   await server.start();
   console.log(`Server berjalan pada ${server.info.uri}`);
