@@ -27,9 +27,6 @@ class AlbumService {
 
     getAlbumById(id) {
         const a = this._album.filter((a) => a.id === id)[0];
-        if(!a) {
-            throw new Error('Album tidak ditemukan');
-        }
         return a;
     }
     
