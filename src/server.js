@@ -3,7 +3,7 @@ const AlbumService = require('./services/AlbumService');
 const albums = require('./api/albums');
 
 const init = async () => {
-  //const albumService = new AlbumService();
+  const albumService = new AlbumService();
   const server = Hapi.server({
     port: 5000,
     host: process.env.NODE_ENV !== 'production' ? 'localhost' : '0.0.0.0',
@@ -17,6 +17,9 @@ const init = async () => {
   try{
     await server.register({
       plugin: albums,
+      options: {
+        service: albumService
+      }
     });
   }catch(e){
     //
