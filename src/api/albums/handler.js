@@ -1,3 +1,6 @@
+const BadRequestError = require('../../exception/BadRequestError');
+const validateNotePayload = require('../../validator/albums');
+
 class AlbumHandler {
     constructor(service){
         this._service = service;
@@ -8,10 +11,12 @@ class AlbumHandler {
     }
 
     postAlbumHandler(request, h){
+        let response = {};
         try{
+            validateNotePayload(request.payload);            
             const{name, year} = request.payload;
             const albumId = this._service.addAlbum({ name, year});
-            const response = h.response({
+            let response = h.response({
                 status: 'success',
                 data: {
                     albumid: albumId
@@ -20,11 +25,19 @@ class AlbumHandler {
             response.code(201);
             return response;
         }catch(e){
-            const response = h.response({
-                status: 'fail',
-                message: e
+            if(e instanceof BadRequestError){
+                response = h.response({
+                    status: 'fail',
+                    message: e.message
+                });
+                response.code(400);
+                return response;
+            }
+            response = h.response({
+                status: 'error',
+                message: e.message
             });
-            response.code(400);
+            response.code(500);
             return response;
         }
     }

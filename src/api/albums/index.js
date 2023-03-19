@@ -5,7 +5,7 @@ const AlbumService = require('../../services/AlbumService');
 const albums = {
   name: 'albums',
   version: '1.0.0',
-  register: async (server, {service}) => {
+  register: async (server) => {
     albumService = new AlbumService() 
     const albumHandler = new AlbumHandler(albumService);
     server.route(routes(albumHandler));
