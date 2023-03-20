@@ -4,7 +4,7 @@ class BadReqestError extends Error {
       this.statusCode = statusCode;
       this.name = 'BadReqestError';
     }
-  }
+}
   
   module.exports = BadReqestError;
   
