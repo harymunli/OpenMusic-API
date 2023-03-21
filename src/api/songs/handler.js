@@ -85,7 +85,67 @@ class SongHandler {
         }
     }
 
-    
+    putSongByIdHandler(request, h) {
+        const {id} = request.params;
+        const song = this._service.getSongById(id);
+
+        if(!song){
+            const response = h.response({
+                status: 'fail',
+                message: "Lagu tidak ditemukan"
+            })
+            response.code(404);
+            return response;
+        }
+
+        try{
+            validateSongPayload(request.payload);
+            this._service.editSongById(id, request.payload);
+            const response = h.response({
+                status: 'success',
+                message: "Album berhasil diperbaharui"
+            });
+            response.code(200);
+            return response;
+        } catch(e) {
+            if(e instanceof BadReqestError){
+                const response = h.response({
+                    status: 'fail',
+                    message: e.message,
+                });
+                response.code(400);
+                return response;
+            }
+            response = h.response({
+                status: 'error',
+                message: e.message
+            });
+            response.code(500);
+            return response;
+        }
+    }
+    deleteAlbumByIdHandler(request, h){
+        const { id } = request.params;
+        const song = this._service.getSongById(id);
+
+        if(!song){
+            const response = h.response({
+                status: 'fail',
+                message: "Album tidak ditemukan"
+            })
+            response.code(404);
+            return response;
+        }
+
+        this._service.deleteSongById(id);
+
+        const response = h.response({
+            status: "success",
+            message: "Album berhasil dihapus"
+        });
+        response.code(200);
+        return response;
+    }
 }
 
 module.exports = SongHandler;

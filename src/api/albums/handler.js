@@ -67,17 +67,17 @@ class AlbumHandler {
     }
 
     putAlbumByIdHandler(request, h) {
-            const {id} = request.params;
-            const album = this._service.getAlbumById(id);
+        const {id} = request.params;
+        const album = this._service.getAlbumById(id);
 
-            if(!album){
-                const response = h.response({
-                    status: 'fail',
-                    message: "Album tidak ditemukan"
-                })
-                response.code(404);
-                return response;
-            }
+        if(!album){
+            const response = h.response({
+                status: 'fail',
+                message: "Album tidak ditemukan"
+            })
+            response.code(404);
+            return response;
+        }
         try{
             validateNotePayload(request.payload);
             this._service.editAlbumById(id, request.payload);

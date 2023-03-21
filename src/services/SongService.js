@@ -33,6 +33,28 @@ class SongService{
     getSongs(){
         return this._song;
     }
+
+    editSongById(id, {title, year, genre, performer, duration, albumId}){
+        const index = this._song.findIndex((a) => a.id === id);
+
+        const updatedAt = new Date().toISOString();
+
+        this._song[index] = {
+            ...this._song[index],
+            title,
+            year,
+            genre,
+            performer,
+            duration,
+            albumId,
+            updatedAt
+        }
+    }
+
+    deleteSongById(id) {
+        const index = this._song.findIndex((a) => a.id === id);
+        this._song.splice(index, 1);
+    }
 }
 
 module.exports = SongService;
