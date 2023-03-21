@@ -1,19 +1,19 @@
 const { response } = require("@hapi/hapi/lib/validation");
 const BadReqestError = require("../../exception/BadRequestError");
+const validateSongPayload = require("../../validator/songs");
 
 
 class SongHandler {
     constructor(service){
         this._service = service;
-        this.postSongHandler = this.postSongHandler.bind(this);
     }
 
     postSongHandler(request, h){
         let response = {}
-        console.log(this._service);
         try{
-            const{title, year, genre, perfomer, duration, albumId} = request.payload;
-            const songId = this._service.addSong({title, year, genre, perfomer, duration, albumId});
+            validateSongPayload(request.payload);
+            const{title, year, genre, performer, duration, albumId} = request.payload;
+            const songId = this._service.addSong({title, year, genre, performer, duration, albumId});
             response = h.response({
                 status: 'success',
                 data: {
@@ -39,6 +39,53 @@ class SongHandler {
             return response;
         }
     }
+
+    getSongByIdHandler(request, h){
+        const {id} = request.params;
+        const song = this._service.getSongById(id);
+
+        if(!song){
+            const response = h.response({
+                status: 'fail',
+                message: "Song tidak ditemukan"
+            });
+            response.code(404);
+            return response;
+        }
+
+        const response = h.response({
+            status: 'success',
+            data : {
+                song : song,
+            }
+        });
+        response.code(200);
+        return response;
+    }
+
+    getSongsHandler(request, h){
+        let response = {}
+        try{
+            const songs = this._service.getSongs();
+            response = h.response({
+                status: 'success',
+                data : {
+                    songs : songs,
+                }
+            });
+            response.code(200);
+            return response;
+        }catch(e){
+            response = h.response({
+                status: 'error',
+                message: e.message
+            });
+            response.code(500);
+            return response;
+        }
+    }
+
+    
 }
 
 module.exports = SongHandler;

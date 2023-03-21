@@ -7,8 +7,6 @@ const SongService = require('./services/SongService');
 const init = async () => {
   const albumService = new AlbumService();
   const songService = new SongService();
-  console.log(albumService);
-  console.log(songService);
   
   const server = Hapi.server({
     port: 5000,
