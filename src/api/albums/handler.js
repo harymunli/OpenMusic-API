@@ -1,23 +1,19 @@
 const { response } = require('@hapi/hapi/lib/validation');
 const BadRequestError = require('../../exception/BadRequestError');
+const NotFoundError = require('../../exception/NotFoundError');
 const validateNotePayload = require('../../validator/albums');
 
 class AlbumHandler {
     constructor(service){
         this._service = service;
-        this.postAlbumHandler = this.postAlbumHandler.bind(this);
-        this.getAlbumByIdHandler = this.getAlbumByIdHandler.bind(this);
-        this.putAlbumByIdHandler = this.putAlbumByIdHandler.bind(this);
-        this.deleteAlbumByIdHandler = this.deleteAlbumByIdHandler.bind(this);
     }
 
-    postAlbumHandler(request, h){
-        let response = {};
+    async postAlbumHandler(request, h){
         try{
             validateNotePayload(request.payload);            
             const{name, year} = request.payload;
-            const albumId = this._service.addAlbum({ name, year});
-            let response = h.response({
+            const albumId = await this._service.addAlbum({ name, year});
+            const response = h.response({
                 status: 'success',
                 data: {
                     albumId: albumId
@@ -27,14 +23,14 @@ class AlbumHandler {
             return response;
         }catch(e){
             if(e instanceof BadRequestError){
-                response = h.response({
+                const response = h.response({
                     status: 'fail',
                     message: e.message
                 });
                 response.code(400);
                 return response;
             }
-            response = h.response({
+            const response = h.response({
                 status: 'error',
                 message: e.message
             });
@@ -43,42 +39,35 @@ class AlbumHandler {
         }
     }
 
-    getAlbumByIdHandler(request, h){
-        const {id} = request.params;
-        const album = this._service.getAlbumById(id)
-        
-        if(!album){
+    async getAlbumByIdHandler(request, h){
+        try{
+            const {id} = await request.params;
+            const album = await this._service.getAlbumById(id)
             const response = h.response({
-                status: 'fail',
-                message: "Album tidak ditemukan"
+                status: 'success',
+                data : {
+                    album : album,
+                }
             });
-            response.code(404);
+            response.code(200);
             return response;
-        }
-
-        const response = h.response({
-            status: 'success',
-            data : {
-                album : album,
+        }catch(e){
+            if(e instanceof NotFoundError){
+                const response = h.response({
+                    status: 'fail',
+                    message: "Album tidak ditemukan"
+                });
+                response.code(404);
+                return response;
             }
-        });
-        response.code(200);
-        return response;
+        }
     }
 
-    putAlbumByIdHandler(request, h) {
-        const {id} = request.params;
-        const album = this._service.getAlbumById(id);
-
-        if(!album){
-            const response = h.response({
-                status: 'fail',
-                message: "Album tidak ditemukan"
-            })
-            response.code(404);
-            return response;
-        }
+    async putAlbumByIdHandler(request, h) {
         try{
+            const {id} = await request.params;
+            await this._service.getAlbumById(id);
+
             validateNotePayload(request.payload);
             this._service.editAlbumById(id, request.payload);
             const response = h.response({
@@ -95,6 +84,13 @@ class AlbumHandler {
                 });
                 response.code(400);
                 return response;
+            }else if(e instanceof NotFoundError){
+                const response = h.response({
+                    status: 'fail',
+                    message: "Album tidak ditemukan"
+                });
+                response.code(404);
+                return response;
             }
             response = h.response({
                 status: 'error',
@@ -105,27 +101,28 @@ class AlbumHandler {
         }
     }
 
-    deleteAlbumByIdHandler(request, h){
-        const { id } = request.params;
-        const album = this._service.getAlbumById(id);
+    async deleteAlbumByIdHandler(request, h){
+        try{
+            const { id } = request.params;
+            await this._service.deleteAlbumById(id);
 
-        if(!album){
             const response = h.response({
-                status: 'fail',
-                message: "Album tidak ditemukan"
-            })
-            response.code(404);
+                status: "success",
+                message: "Album berhasil dihapus"
+            });
+            response.code(200);
             return response;
+            
+        }catch(e){
+            if(e instanceof NotFoundError){
+                const response = h.response({
+                    status: 'fail',
+                    message: "Album tidak ditemukan"
+                })
+                response.code(404);
+                return response;
+            }
         }
-
-        this._service.deleteAlbumById(id);
-
-        const response = h.response({
-            status: "success",
-            message: "Album berhasil dihapus"
-        });
-        response.code(200);
-        return response
     }
 }
 

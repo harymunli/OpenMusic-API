@@ -2,13 +2,12 @@ require('dotenv').config();
 
 const Hapi = require('@hapi/hapi');
 const albums = require('./api/albums');
-const AlbumService = require('./services/AlbumService');
+const pgAlbumService = require('./services/postgres/pgAlbumService');
 const songs = require('./api/songs');
 const SongService = require('./services/SongService');
 
-
 const init = async () => {
-  const albumService = new AlbumService();
+  const albumService = new pgAlbumService();
   const songService = new SongService();
   
   const server = Hapi.server({
