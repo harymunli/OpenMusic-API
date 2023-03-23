@@ -104,15 +104,25 @@ class AlbumHandler {
     async deleteAlbumByIdHandler(request, h){
         try{
             const { id } = request.params;
-            await this._service.deleteAlbumById(id);
+            const album = await this._service.getAlbumById(id);
+
+            if(!album){
+                const response = h.response({
+                    status: 'fail',
+                    message: "Album tidak ditemukan"
+                })
+                response.code(404);
+                return response;
+            }
+
+            this._service.deleteAlbumById(id);
 
             let response = h.response({
                 status: "success",
                 message: "Album berhasil dihapus"
             });
             response.code(200);
-            return response;
-            
+            return response;   
         }catch(e){
             if(e instanceof NotFoundError){
                 const response = h.response({
