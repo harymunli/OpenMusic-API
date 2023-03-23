@@ -106,7 +106,7 @@ class AlbumHandler {
             const { id } = request.params;
             await this._service.deleteAlbumById(id);
 
-            const response = h.response({
+            let response = h.response({
                 status: "success",
                 message: "Album berhasil dihapus"
             });
@@ -122,6 +122,12 @@ class AlbumHandler {
                 response.code(404);
                 return response;
             }
+            const response = h.response({
+                status: 'error',
+                message: e.message
+            });
+            response.code(500);
+            return response;
         }
     }
 }

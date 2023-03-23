@@ -63,16 +63,16 @@ class pgAlbumService {
   }
 
   async deleteAlbumById(id) {
-    const result = await this.getAlbumById(id);;
-    
+    const result = await this.getAlbumById(id);
+    console.log(result.rows.length);
     if (!result.rows.length) {
       throw new NotFoundError('Album gagal dihapus. Id tidak ditemukan');
     }
     const query = {
-      text: 'DELETE FROM album WHERE id = $1',
+      text: 'DELETE FROM album WHERE id = $1 RETURNING id',
       values: [id],
     };
-    await this._pool.query(query);
+    return await this._pool.query(query);
   }  
 }
 
