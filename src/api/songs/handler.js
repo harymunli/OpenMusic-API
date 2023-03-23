@@ -8,12 +8,12 @@ class SongHandler {
         this._service = service;
     }
 
-    postSongHandler(request, h){
+    async postSongHandler(request, h){
         let response = {}
         try{
             validateSongPayload(request.payload);
             const{title, year, genre, performer, duration, albumId} = request.payload;
-            const songId = this._service.addSong({title, year, genre, performer, duration, albumId});
+            const songId = await this._service.addSong({title, year, genre, performer, duration, albumId});
             response = h.response({
                 status: 'success',
                 data: {
@@ -40,9 +40,9 @@ class SongHandler {
         }
     }
 
-    getSongByIdHandler(request, h){
+    async getSongByIdHandler(request, h){
         const {id} = request.params;
-        const song = this._service.getSongById(id);
+        const song = await this._service.getSongById(id);
 
         if(!song){
             const response = h.response({
@@ -63,10 +63,10 @@ class SongHandler {
         return response;
     }
 
-    getSongsHandler(request, h){
+    async getSongsHandler(request, h){
         let response = {}
         try{
-            const songs = this._service.getSongs();
+            const songs = await this._service.getSongs();
             response = h.response({
                 status: 'success',
                 data : {
@@ -85,9 +85,9 @@ class SongHandler {
         }
     }
 
-    putSongByIdHandler(request, h) {
+    async putSongByIdHandler(request, h) {
         const {id} = request.params;
-        const song = this._service.getSongById(id);
+        const song = await this._service.getSongById(id);
 
         if(!song){
             const response = h.response({
@@ -100,7 +100,7 @@ class SongHandler {
 
         try{
             validateSongPayload(request.payload);
-            this._service.editSongById(id, request.payload);
+            await this._service.editSongById(id, request.payload);
             const response = h.response({
                 status: 'success',
                 message: "Album berhasil diperbaharui"
@@ -124,7 +124,8 @@ class SongHandler {
             return response;
         }
     }
-    deleteAlbumByIdHandler(request, h){
+    
+    async deleteAlbumByIdHandler(request, h){
         const { id } = request.params;
         const song = this._service.getSongById(id);
 
@@ -137,7 +138,7 @@ class SongHandler {
             return response;
         }
 
-        this._service.deleteSongById(id);
+        await this._service.deleteSongById(id);
 
         const response = h.response({
             status: "success",

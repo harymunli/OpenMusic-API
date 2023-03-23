@@ -1,18 +1,25 @@
+require('dotenv').config();
+
+const { Pool } = require('pg');
 const { nanoid } = require('nanoid');
 
-class SongService{
+class pgSongService{
     constructor(){
-        this._song = [];
+        this._pool = new Pool({
+            user: process.env.PGUSER,
+            host: process.env.PGHOST,
+            database: process.env.PGDATABASE,
+            password: process.env.PGPASSWORD,
+            port: process.env.PGPORT
+        });
     }
 
     async addSong({title, year, genre, performer, duration, albumId}){
         const id = nanoid(16);
-        const createdAt = new Date().toISOString();
-        const updatedAt = createdAt;
 
         const query = {
-            text: 'INSERT INTO song VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id',
-            values: [id, title, year, genre, performer, duration, albumId, createdAt, updatedAt],
+            text: 'INSERT INTO song VALUES($1, $2, $3, $4, $5, $6, $7) RETURNING id',
+            values: [id, title, year, genre, performer, duration, albumId],
         };
     
         const result = await this._pool.query(query);
@@ -20,7 +27,7 @@ class SongService{
         if (!result.rows[0].id) {
             throw new InvariantError('Catatan gagal ditambahkan');
           }
-      
+
         return result.rows[0].id;
     }
 
@@ -39,15 +46,15 @@ class SongService{
     }
 
     async getSongs(){
-        const result = await this._pool.query('SELECT * FROM notes');
+        const result = await this._pool.query('SELECT id, title, performer FROM song');
         return result.rows;
     }
 
     async editSongById(id, {title, year, genre, performer, duration, albumId}){
         const updatedAt = new Date().toISOString();
         const query = {
-        text: 'UPDATE song SET title = $1, year = $2, gere = $3, performer = $4 duration = $5, albumId = $6, updatedAt = $7 WHERE id = $8 RETURNING id',
-        values: [title, year, genre, performer, duration, albumId, updatedAt, id],
+        text: 'UPDATE song SET title = $1, year = $2, gere = $3, performer = $4 duration = $5, albumId = $6, WHERE id = $7 RETURNING id',
+        values: [title, year, genre, performer, duration, albumId, id],
         };
         
         const result = await this._pool.query(query);
@@ -71,4 +78,4 @@ class SongService{
     }
 }
 
-module.exports = SongService;
+module.exports = pgSongService;

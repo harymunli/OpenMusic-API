@@ -29,16 +29,6 @@ exports.up = pgm => {
         },
         albumId: {
             type: 'varchar(50)',
-        },
-        created_at:{
-            type: 'timestamp',
-            notNull: true,
-            default: pgm.func('current_timestamp'),
-        },
-        updated_at:{
-            type: 'timestamp',
-            notNull: true,
-            default: pgm.func('current_timestamp'),
         }
     });
 };
