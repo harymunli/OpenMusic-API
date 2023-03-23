@@ -115,7 +115,7 @@ class AlbumHandler {
                 return response;
             }
 
-            this._service.deleteAlbumById(id);
+            await this._service.deleteAlbumById(id);
 
             let response = h.response({
                 status: "success",
@@ -124,6 +124,7 @@ class AlbumHandler {
             response.code(200);
             return response;   
         }catch(e){
+            console.log("error");
             if(e instanceof NotFoundError){
                 const response = h.response({
                     status: 'fail',
