@@ -134,19 +134,26 @@ class SongHandler {
     }
     
     async deleteSongByIdHandler(request, h){
-        const { id } = request.params;
-        const song = await this._service.getSongById(id);
-
-        if(!song){
-            const response = h.response({
-                status: 'fail',
-                message: "Song tidak ditemukan"
-            })
-            response.code(404);
-            return response;
+        try{
+            const { id } = request.params;
+            await this._service.getSongById(id);
+            await this._service.deleteSongById(id);
+            let res = h.response({
+                status: 'success',
+                message: "Album berhasil diperbaharui"
+            });
+            res.code(200);
+            return res;
+        }catch(e){
+            if(e instanceof NotFoundError){
+                const response = h.response({
+                    status: 'fail',
+                    message: "Lagu tidak ditemukan"
+                });
+                response.code(404);
+                return response;
+            }
         }
-
-        await this._service.deleteSongById(id);
 
         const response = h.response({
             status: "success",

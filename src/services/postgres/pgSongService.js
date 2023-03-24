@@ -67,10 +67,10 @@ class pgSongService{
 
     async deleteSongById(id) {
         const query = {
-            text: 'DELETE FROM notes WHERE id = $1 RETURNING id',
+            text: 'DELETE FROM song WHERE id = $1 RETURNING id',
             values: [id],
           };
-      
+
           const result = await this._pool.query(query);
       
           if (!result.rows.length) {
