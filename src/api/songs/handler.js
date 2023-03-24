@@ -133,14 +133,14 @@ class SongHandler {
         }
     }
     
-    async deleteAlbumByIdHandler(request, h){
+    async deleteSongByIdHandler(request, h){
         const { id } = request.params;
-        const song = this._service.getSongById(id);
+        const song = await this._service.getSongById(id);
 
         if(!song){
             const response = h.response({
                 status: 'fail',
-                message: "Album tidak ditemukan"
+                message: "Song tidak ditemukan"
             })
             response.code(404);
             return response;
