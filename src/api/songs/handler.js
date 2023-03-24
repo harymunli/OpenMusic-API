@@ -1,5 +1,6 @@
 const { response } = require("@hapi/hapi/lib/validation");
 const BadReqestError = require("../../exception/BadRequestError");
+const NotFoundError = require('../../exception/NotFoundError');
 const validateSongPayload = require("../../validator/songs");
 
 
@@ -12,8 +13,8 @@ class SongHandler {
         let response = {}
         try{
             validateSongPayload(request.payload);
-            const{title, year, genre, performer, duration, albumId} = request.payload;
-            const songId = await this._service.addSong({title, year, genre, performer, duration, albumId});
+            const{title, year, genre, performer, duration} = request.payload;
+            const songId = await this._service.addSong({title, year, genre, performer, duration});
             response = h.response({
                 status: 'success',
                 data: {
@@ -30,6 +31,13 @@ class SongHandler {
                 });
                 response.code(400);
                 return response;
+            }else if(e instanceof NotFoundError){
+                const response = h.response({
+                    status: 'fail',
+                    message: "lagu tidak ditemukan"
+                });
+                response.code(404);
+                return response;
             }
             response = h.response({
                 status: 'error',
@@ -41,26 +49,28 @@ class SongHandler {
     }
 
     async getSongByIdHandler(request, h){
-        const {id} = request.params;
-        const song = await this._service.getSongById(id);
-
-        if(!song){
+        try{
+            const {id} = request.params;
+            const song = await this._service.getSongById(id);
             const response = h.response({
-                status: 'fail',
-                message: "Song tidak ditemukan"
+                status: 'success',
+                data : {
+                    song : song[0],
+                }
             });
-            response.code(404);
+            response.code(200);
             return response;
-        }
-
-        const response = h.response({
-            status: 'success',
-            data : {
-                song : song,
+            
+        }catch(e){
+            if(e instanceof NotFoundError){
+                const response = h.response({
+                    status: 'fail',
+                    message: "Lagu tidak ditemukan"
+                });
+                response.code(404);
+                return response;
             }
-        });
-        response.code(200);
-        return response;
+        }
     }
 
     async getSongsHandler(request, h){
@@ -86,28 +96,26 @@ class SongHandler {
     }
 
     async putSongByIdHandler(request, h) {
-        const {id} = request.params;
-        const song = await this._service.getSongById(id);
-
-        if(!song){
-            const response = h.response({
-                status: 'fail',
-                message: "Lagu tidak ditemukan"
-            })
-            response.code(404);
-            return response;
-        }
-
         try{
+            const {id} = request.params;
+            await this._service.getSongById(id);
             validateSongPayload(request.payload);
             await this._service.editSongById(id, request.payload);
-            const response = h.response({
+            let res = h.response({
                 status: 'success',
                 message: "Album berhasil diperbaharui"
             });
-            response.code(200);
-            return response;
+            res.code(200);
+            return res;
         } catch(e) {
+            if(e instanceof NotFoundError){
+                const response = h.response({
+                    status: 'fail',
+                    message: "Lagu tidak ditemukan"
+                });
+                response.code(404);
+                return response;
+            }
             if(e instanceof BadReqestError){
                 const response = h.response({
                     status: 'fail',
@@ -116,12 +124,12 @@ class SongHandler {
                 response.code(400);
                 return response;
             }
-            response = h.response({
+            let res = h.response({
                 status: 'error',
                 message: e.message
             });
-            response.code(500);
-            return response;
+            res.code(500);
+            return res;
         }
     }
     

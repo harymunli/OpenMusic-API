@@ -2,6 +2,8 @@ require('dotenv').config();
 
 const { Pool } = require('pg');
 const { nanoid } = require('nanoid');
+const BadReqestError = require('../../exception/BadRequestError')
+const NotFoundError = require('../../exception/NotFoundError')
 
 class pgSongService{
     constructor(){
@@ -39,7 +41,7 @@ class pgSongService{
           const result = await this._pool.query(query);
       
           if (!result.rows.length) {
-            throw new NotFoundError('Catatan tidak ditemukan');
+            throw new NotFoundError('Lagu tidak ditemukan');
           }
           
           return result.rows;
@@ -50,11 +52,10 @@ class pgSongService{
         return result.rows;
     }
 
-    async editSongById(id, {title, year, genre, performer, duration, albumId}){
-        const updatedAt = new Date().toISOString();
+    async editSongById(id, {title, year, genre, performer, duration}){
         const query = {
-        text: 'UPDATE song SET title = $1, year = $2, gere = $3, performer = $4 duration = $5, albumId = $6, WHERE id = $7 RETURNING id',
-        values: [title, year, genre, performer, duration, albumId, id],
+        text: 'UPDATE song SET title = $1, year = $2, genre = $3, performer = $4, duration = $5 WHERE id = $6 RETURNING id',
+        values: [title, year, genre, performer, duration, id],
         };
         
         const result = await this._pool.query(query);
