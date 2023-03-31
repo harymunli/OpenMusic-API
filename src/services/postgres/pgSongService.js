@@ -2,7 +2,6 @@ require('dotenv').config();
 
 const { Pool } = require('pg');
 const { nanoid } = require('nanoid');
-const BadReqestError = require('../../exception/BadRequestError')
 const NotFoundError = require('../../exception/NotFoundError')
 
 class pgSongService{

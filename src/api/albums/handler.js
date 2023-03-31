@@ -1,4 +1,3 @@
-const { response } = require('@hapi/hapi/lib/validation');
 const BadRequestError = require('../../exception/BadRequestError');
 const NotFoundError = require('../../exception/NotFoundError');
 const validateNotePayload = require('../../validator/albums');
@@ -27,7 +26,6 @@ class AlbumHandler {
                     status: 'fail',
                     message: e.message
                 });
-                response.code(400);
                 return response;
             }
             const response = h.response({
