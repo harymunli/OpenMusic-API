@@ -3,7 +3,7 @@ require('dotenv').config();
 const { Pool } = require('pg');
 const { nanoid } = require('nanoid');
 const bcrypt = require("bcrypt");
-const BadRequestError = require('../../exception/BadRequestError')
+const BadRequestError = require('../../exception/BadRequestError');
 
 class pgUserService{
     constructor(){
