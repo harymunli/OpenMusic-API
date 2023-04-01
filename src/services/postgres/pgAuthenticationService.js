@@ -1,7 +1,6 @@
 require('dotenv').config();
 
 const { Pool } = require('pg');
-const { nanoid } = require('nanoid');
 const BadRequestError = require('../../exception/BadRequestError');
 const AuthenticationError = require('../../exception/AuthenticationError');
 const bcrypt = require('bcrypt')
