@@ -15,18 +15,22 @@ const pgSongService = require('./services/postgres/pgSongService');
 const users = require('./api/users');
 const pgUserService = require('./services/postgres/pgUserService');
 
-// authentications
+// Authentications
 const authentications = require('./api/authentications');
 const TokenManager = require('./tokenize/TokenManager');
 const pgAuthenticationService = require('./services/postgres/pgAuthenticationService.js');
 
+// Playlist
+const playlists = require('./api/playlist');
+const pgPlaylistService = require('./services/postgres/pgPlaylistService');
 
 const init = async () => {
   const albumService = new pgAlbumService();
   const songService = new pgSongService();
   const userService = new pgUserService();
   const authenticationsService = new pgAuthenticationService();
-  
+  const playlistService = new pgPlaylistService();
+
   const server = Hapi.server({
     port: process.env.PORT,
     host: process.env.HOST,
@@ -78,6 +82,12 @@ const init = async () => {
       plugin: users,
       options: {
         service: userService
+      }
+    },
+    {
+      plugin: playlists,
+      options: {
+        service: playlistService
       }
     },
     {
