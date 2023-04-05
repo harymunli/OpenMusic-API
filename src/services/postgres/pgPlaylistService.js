@@ -19,7 +19,7 @@ class pgPlaylistService{
     async addPlaylist({name, owner}){
         const id = nanoid(16);
         const query = {
-            text: 'INSERT INTO playlist VALUES($1, $2, $3)',
+            text: 'INSERT INTO playlist VALUES($1, $2, $3) RETURNING id',
             values: [id, name, owner]
         }
 

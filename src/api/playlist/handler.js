@@ -14,7 +14,7 @@ class PlaylistHandler {
             validatePlaylistPayload(req.payload);
             const token = req.headers.authorization.split(" ")[1];
             const {name} = req.payload;
-            const {owner} = TokenManager.getPayloadFromToken(token).id;
+            const owner = TokenManager.getPayloadFromToken(token).id;
 
             //TODO add owner id on addPlaylist
             const playlistId = await this._service.addPlaylist({name,owner});
