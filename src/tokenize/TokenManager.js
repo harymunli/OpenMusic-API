@@ -13,6 +13,12 @@ const TokenManager = {
         }catch(e){
             throw new BadRequestError;
         }
+    },
+    // TODO Implement sistem token sudah kadaluarsa dan diberi access token yang baru
+    getPayloadFromToken: (access_token) =>{
+        const artifacts = Jwt.token.decode(access_token);
+        const { payload } = artifacts.decoded;
+        return payload;
     }
 }
 

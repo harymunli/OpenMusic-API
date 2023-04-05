@@ -1,6 +1,7 @@
 const BadRequestError = require('../../exception/BadRequestError');
 const AuthenticationError = require('../../exception/AuthenticationError');
 const validatePlaylistPayload = require('../../validator/playlist');
+const TokenManager = require('../../tokenize/TokenManager');
 
 class PlaylistHandler {
     constructor(service){
@@ -9,11 +10,14 @@ class PlaylistHandler {
     async postPlaylistHandler(req, h){
         try{
             if(!req.headers.authorization) throw new AuthenticationError("Anda belum login, silahkan login terlebih dahulu");
-            
-            validatePlaylistPayload(req.payload);
-            const {name} = req.payload;
 
-            const playlistId = await this._service.addPlaylist({name, songId})
+            validatePlaylistPayload(req.payload);
+            const token = req.headers.authorization.split(" ")[1];
+            const {name} = req.payload;
+            const {owner} = TokenManager.getPayloadFromToken(token).id;
+
+            //TODO add owner id on addPlaylist
+            const playlistId = await this._service.addPlaylist({name,owner});
             
             const response = h.response({
                 status: 'success',

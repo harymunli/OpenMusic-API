@@ -15,11 +15,12 @@ class pgPlaylistService{
         });
     }
 
-    async addPlaylist({name, songId}){
+    // owner berupa id user
+    async addPlaylist({name, owner}){
         const id = nanoid(16);
-        query = {
+        const query = {
             text: 'INSERT INTO playlist VALUES($1, $2, $3)',
-            values: [id, name, songId]
+            values: [id, name, owner]
         }
 
         const result = await this._pool.query(query);
