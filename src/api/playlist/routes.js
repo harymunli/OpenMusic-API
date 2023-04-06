@@ -4,6 +4,11 @@ const routes = (handler) => [
       path: '/playlists',
       handler: (request, h) => handler.postPlaylistHandler(request, h)
     },
+    {
+      method: 'GET',
+      path: '/playlists',
+      handler: (request, h) => handler.getAllPlaylistHandler(request, h),
+    },
     // {
     //   method: 'PUT',
     //   path: '/authentications',

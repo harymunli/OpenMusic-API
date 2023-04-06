@@ -3,6 +3,7 @@ require('dotenv').config();
 const { Pool } = require('pg');
 const { nanoid } = require('nanoid');
 const BadRequestError = require('../../exception/BadRequestError');
+const NotFoundError = require('../../exception/NotFoundError');
 
 class pgPlaylistService{
     constructor(){
@@ -29,6 +30,19 @@ class pgPlaylistService{
             throw new BadRequestError('Playlist gagal ditambahkan');
         }
         return result.rows[0].id;
+    }
+
+    async getAllPlaylist(owner_id){
+        const query = {
+            text: 'SELECT playlist.id, playlist.name, username from playlist inner join users on users.id=playlist.owner where playlist.owner = $1',
+            values: [owner_id]
+        }
+        const result = await this._pool.query(query);
+        if (!result.rows.length) {
+            throw new NotFoundError('playlist tidak ditemukan');
+        }
+
+        return result.rows;
     }
 }
 
