@@ -1,4 +1,4 @@
-const BadRequestError = require('../../exception/BadRequestError');
+const ClientError = require('../../exception/ClientError')
 const {validateUserPayload} = require('../../validator/users');
 
 class UsersHandler {
@@ -22,7 +22,7 @@ class UsersHandler {
             response.code(201);
             return response;
           } catch (error) {
-            if (error instanceof BadRequestError) {
+            if (error instanceof ClientError) {
               const response = h.response({
                 status: 'fail',
                 message: error.message,

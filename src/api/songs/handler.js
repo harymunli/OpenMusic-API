@@ -2,6 +2,7 @@ const { response } = require("@hapi/hapi/lib/validation");
 const BadReqestError = require("../../exception/BadRequestError");
 const NotFoundError = require('../../exception/NotFoundError');
 const validateSongPayload = require("../../validator/songs");
+const ClientError = require("../../exception/ClientError");
 
 
 class SongHandler {
@@ -24,19 +25,12 @@ class SongHandler {
             response.code(201);
             return response;
         }catch(e){
-            if(e instanceof BadReqestError){
+            if(e instanceof ClientError){
                 response = h.response({
                     status: 'fail',
                     message: e.message
                 });
-                response.code(400);
-                return response;
-            }else if(e instanceof NotFoundError){
-                const response = h.response({
-                    status: 'fail',
-                    message: "lagu tidak ditemukan"
-                });
-                response.code(404);
+                response.code(e.statusCode);
                 return response;
             }
             response = h.response({
@@ -62,12 +56,12 @@ class SongHandler {
             return response;
             
         }catch(e){
-            if(e instanceof NotFoundError){
+            if(e instanceof ClientError){
                 const response = h.response({
                     status: 'fail',
                     message: "Lagu tidak ditemukan"
                 });
-                response.code(404);
+                response.code(e.statusCode);
                 return response;
             }
         }
@@ -108,20 +102,12 @@ class SongHandler {
             res.code(200);
             return res;
         } catch(e) {
-            if(e instanceof NotFoundError){
+            if(e instanceof ClientError){
                 const response = h.response({
                     status: 'fail',
                     message: "Lagu tidak ditemukan"
                 });
-                response.code(404);
-                return response;
-            }
-            if(e instanceof BadReqestError){
-                const response = h.response({
-                    status: 'fail',
-                    message: e.message,
-                });
-                response.code(400);
+                response.code(e.statusCode);
                 return response;
             }
             let res = h.response({
@@ -150,7 +136,7 @@ class SongHandler {
                     status: 'fail',
                     message: "Lagu tidak ditemukan"
                 });
-                response.code(404);
+                response.code(e.statusCode);
                 return response;
             }
         }

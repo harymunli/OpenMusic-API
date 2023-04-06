@@ -1,4 +1,6 @@
-class AuthenticationError extends Error {
+const ClientError = require('./ClientError');
+
+class AuthenticationError extends ClientError {
     constructor(message) {
       super(message, 401);
       this.statusCode = 401;
