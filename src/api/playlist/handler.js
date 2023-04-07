@@ -1,4 +1,5 @@
 const AuthenticationError = require('../../exception/AuthenticationError');
+const ForbiddenError = require('../../exception/ForbiddenError');
 const ClientError = require('../../exception/ClientError');
 const {validatePlaylistPayload, validatePlaylistSongPayload} = require('../../validator/playlist');
 const TokenManager = require('../../tokenize/TokenManager');
@@ -91,7 +92,11 @@ class PlaylistHandler {
         validatePlaylistSongPayload(req.payload);
         const playlistId = req.params.ownerId;
         
-        //TODO 404 not found error handle
+        //TODO 403 Forbidden Error dimana token jwt tidak sama dengan owner playlist ini
+        const token = req.headers.authorization.split(" ")[1];
+        const user = TokenManager.getPayloadFromToken(token)
+        if(user != req.params.ownerId) throw new ForbiddenError("Anda tidak memiliki akses playlist ini");
+
         const songId = req.payload;
         await this._service.addSongToPlaylist(playlistId, songId)
 
