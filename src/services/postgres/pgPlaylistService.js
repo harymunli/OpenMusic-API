@@ -45,6 +45,19 @@ class pgPlaylistService{
         return result.rows;
     }
 
+    async getOwnerIdFromPlaylist(playlist_id){
+        const query = {
+            text: 'select * from playlist where id = $1',
+            values: [playlist_id]
+        }
+        const result = await this._pool.query(query);
+        if (!result.rows[0]) {
+            throw new NotFoundError('playlist tidak ditemukan');
+        }
+
+        return result.rows[0].owner;
+    }
+
     async addSongToPlaylist(playlistId, {songId}){
         let query = {
             text: 'SELECT * FROM playlist WHERE id = $1',
@@ -66,6 +79,30 @@ class pgPlaylistService{
             throw new BadRequestError('Song gagal ditambahkan');
         }
         return result.rows[0].id;
+    }
+
+    async getSongsFromPlaylist(playlist_id){
+        // const query = {
+        //     text: 'Select * From playlist_songs where playlist_id = $1',
+        //     // values: [playlist_id]
+        // }
+        const query = {
+            text: `Select Distinct d.id, d.name, f.username
+            from playlist as d inner join playlist_songs as e
+            on d.id = e.playlist_id
+            inner join users as f
+            on d.owner = f.id
+            where e.playlist_id = $1`,
+            values:[playlist_id]
+        }
+
+        const result = await this._pool.query(query);
+        console.log(result.rows);
+        if (!result.rows.length) {
+            throw new NotFoundError('Playlist tidak ditemukan');
+        }
+
+        // return result.rows;
     }
 }
 

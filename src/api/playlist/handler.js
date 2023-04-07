@@ -90,12 +90,14 @@ class PlaylistHandler {
       try{
         if(!req.headers.authorization) throw new AuthenticationError("Anda belum login, silahkan login terlebih dahulu");
         validatePlaylistSongPayload(req.payload);
-        const playlistId = req.params.ownerId;
+        //TODO owner id tidak ada di params, harus query ke sql
+        const playlistId = req.params.id;
+        const ownerId = this._service.getOwnerIdFromPlaylist(playlistId)
         
         //TODO 403 Forbidden Error dimana token jwt tidak sama dengan owner playlist ini
         const token = req.headers.authorization.split(" ")[1];
-        const user = TokenManager.getPayloadFromToken(token)
-        if(user != req.params.ownerId) throw new ForbiddenError("Anda tidak memiliki akses playlist ini");
+        const userId = TokenManager.getPayloadFromToken(token).id;
+        if(userId != ownerId) throw new ForbiddenError("Anda tidak memiliki akses ke playlist ini");
 
         const songId = req.payload;
         await this._service.addSongToPlaylist(playlistId, songId)
@@ -108,6 +110,37 @@ class PlaylistHandler {
         return response;
 
       }catch(error){
+        if (error instanceof ClientError) {
+          const response = h.response({
+            status: 'fail',
+            message: error.message,
+          });
+          response.code(error.statusCode);
+          return response;
+        }
+        // Server ERROR!
+        const response = h.response({
+          status: 'error',
+          message: 'Maaf, terjadi kegagalan pada server kami.',
+        });
+        response.code(500);
+        console.error(error);
+        return response;
+      }
+    }
+
+    async getSongsFromPlaylistHandler(req, h){
+      try{
+        if(!req.headers.authorization) throw new AuthenticationError("Anda belum login, silahkan login terlebih dahulu");
+        
+        const token = req.headers.authorization.split(" ")[1];
+        const user_id = TokenManager.getPayloadFromToken(token)
+        console.log(user_id)
+        if(user_id != req.params.playlistId) throw new ForbiddenError("Anda tidak memiliki akses playlist ini");
+      
+        await this._service.getSongsFromPlaylist(playlistId);
+      
+      } catch(error){
         if (error instanceof ClientError) {
           const response = h.response({
             status: 'fail',

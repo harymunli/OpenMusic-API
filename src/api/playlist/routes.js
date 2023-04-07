@@ -11,8 +11,13 @@ const routes = (handler) => [
     },
     {
       method: 'POST',
-      path:'/playlists/{ownerId}/songs',
+      path:'/playlists/{id}/songs',
       handler: (request, h) => handler.postSongtoPlaylistHandler(request, h)
+    },
+    {
+      method: 'GET',
+      path:'/playlists/{id}/songs',
+      handler: (request, h) => handler.getSongsFromPlaylistHandler(request, h)
     }
   ];
    
