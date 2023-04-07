@@ -9,16 +9,11 @@ const routes = (handler) => [
       path: '/playlists',
       handler: (request, h) => handler.getAllPlaylistHandler(request, h),
     },
-    // {
-    //   method: 'PUT',
-    //   path: '/authentications',
-    //   handler: (request, h) => handler.putAuthenticationHandler(request, h),
-    // },
-    // {
-    //   method: 'DELETE',
-    //   path: '/authentications',
-    //   handler: (request, h) => handler.deleteAuthenticationHandler(request, h),
-    // },
+    {
+      method: 'POST',
+      path:'/playlists/{ownerId}/songs',
+      handler: (request, h) => handler.postSongtoPlaylistHandler(request, h)
+    }
   ];
    
   module.exports = routes;
