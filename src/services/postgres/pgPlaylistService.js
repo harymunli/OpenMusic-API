@@ -45,22 +45,19 @@ class pgPlaylistService{
         return result.rows;
     }
 
-    async addSongToPlaylist(playlistId, songId){
-        //TODO verifikasi
-        console.log(playlistId);
+    async addSongToPlaylist(playlistId, {songId}){
         let query = {
-            text: 'SELECT * FROM playlist WHERE id = \'$1\'',
-            value: [playlistId]
+            text: 'SELECT * FROM playlist WHERE id = $1',
+            values: [playlistId]
         }
 
         let result = await this._pool.query(query);
-        console.log(result);
         if(!result.rows[0]) throw new NotFoundError("playlist tidak ditemukan");
 
         const id = nanoid(16);
         query = {
             text: 'Insert into playlist_songs values($1, $2, $3) returning id',
-            value: [id, playlistId, songId]
+            values: [id, playlistId, songId]
         }
 
         result = await this._pool.query(query);
