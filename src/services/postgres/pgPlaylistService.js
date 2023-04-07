@@ -82,11 +82,7 @@ class pgPlaylistService{
     }
 
     async getSongsFromPlaylist(playlist_id){
-        // const query = {
-        //     text: 'Select * From playlist_songs where playlist_id = $1',
-        //     // values: [playlist_id]
-        // }
-        const query = {
+        let query = {
             text: `Select Distinct d.id, d.name, f.username
             from playlist as d inner join playlist_songs as e
             on d.id = e.playlist_id
@@ -96,13 +92,29 @@ class pgPlaylistService{
             values:[playlist_id]
         }
 
-        const result = await this._pool.query(query);
-        console.log(result.rows);
-        if (!result.rows.length) {
+        let result1 = await this._pool.query(query);
+        //console.log(result1.rows);
+        if (!result1.rows.length) {
             throw new NotFoundError('Playlist tidak ditemukan');
         }
 
-        // return result.rows;
+        query = {
+            text: `select f.id, f.title, f.performer
+            from playlist_songs as e
+            inner join song as f 
+            on e.song_id = f.id
+            where e.playlist_id = $1`, 
+            values:[playlist_id]
+        }
+        let result2 = await this._pool.query(query);
+        
+        if (!result2.rows.length) {
+            throw new NotFoundError('Playlist tidak ditemukan');
+        }
+
+        result1.rows[0].songs =  result2.rows;
+
+        return result1.rows[0];
     }
 }
 

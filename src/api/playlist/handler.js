@@ -56,12 +56,12 @@ class PlaylistHandler {
         const token = req.headers.authorization.split(" ")[1];
         const owner_id = TokenManager.getPayloadFromToken(token).id;
 
-        const playlists = await this._service.getAllPlaylist(owner_id);
+        const playlist = await this._service.getAllPlaylist(owner_id);
         
         const response = h.response({
             status: 'success',
             data: {
-              playlists,
+              playlist,
             },
           });
           response.code(200);
@@ -90,11 +90,11 @@ class PlaylistHandler {
       try{
         if(!req.headers.authorization) throw new AuthenticationError("Anda belum login, silahkan login terlebih dahulu");
         validatePlaylistSongPayload(req.payload);
-        //TODO owner id tidak ada di params, harus query ke sql
+        //owner id tidak ada di params, harus query ke sql
         const playlistId = req.params.id;
-        const ownerId = this._service.getOwnerIdFromPlaylist(playlistId)
+        const ownerId = await this._service.getOwnerIdFromPlaylist(playlistId)
         
-        //TODO 403 Forbidden Error dimana token jwt tidak sama dengan owner playlist ini
+        //403 Forbidden Error dimana token jwt tidak sama dengan owner playlist ini
         const token = req.headers.authorization.split(" ")[1];
         const userId = TokenManager.getPayloadFromToken(token).id;
         if(userId != ownerId) throw new ForbiddenError("Anda tidak memiliki akses ke playlist ini");
@@ -133,13 +133,22 @@ class PlaylistHandler {
       try{
         if(!req.headers.authorization) throw new AuthenticationError("Anda belum login, silahkan login terlebih dahulu");
         
+        const playlistId = req.params.id;
+        const ownerId = await this._service.getOwnerIdFromPlaylist(playlistId);
+
         const token = req.headers.authorization.split(" ")[1];
-        const user_id = TokenManager.getPayloadFromToken(token)
-        console.log(user_id)
-        if(user_id != req.params.playlistId) throw new ForbiddenError("Anda tidak memiliki akses playlist ini");
+        const user_id = TokenManager.getPayloadFromToken(token).id;
+        if(user_id != ownerId) throw new ForbiddenError("Anda tidak memiliki akses playlist ini");
       
-        await this._service.getSongsFromPlaylist(playlistId);
-      
+        const playlist = await this._service.getSongsFromPlaylist(playlistId);
+        const response = h.response({
+          status: 'success',
+          data: {
+            playlist
+          },
+        });
+        response.code(200);
+        return response;
       } catch(error){
         if (error instanceof ClientError) {
           const response = h.response({
