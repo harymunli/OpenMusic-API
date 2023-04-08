@@ -68,7 +68,7 @@ class AlbumHandler {
             const {id} = await request.params;
             await this._service.getAlbumById(id);
 
-            validateNotePayload(request.payload);
+            validateAlbumPayload(request.payload);
             this._service.editAlbumById(id, request.payload);
             const response = h.response({
                 status: 'success',
@@ -77,19 +77,12 @@ class AlbumHandler {
             response.code(200);
             return response;
         }catch (e) {
-            if(e instanceof BadRequestError){
+            if(e instanceof ClientError){
                 const response = h.response({
                     status: 'fail',
                     message: e.message,
                 });
-                response.code(400);
-                return response;
-            }else if(e instanceof NotFoundError){
-                const response = h.response({
-                    status: 'fail',
-                    message: "Album tidak ditemukan"
-                });
-                response.code(404);
+                response.code(e.statusCode);
                 return response;
             }
             const response = h.response({
