@@ -18,6 +18,16 @@ const routes = (handler) => [
       method: 'GET',
       path:'/playlists/{id}/songs',
       handler: (request, h) => handler.getSongsFromPlaylistHandler(request, h)
+    },
+    {
+      method: 'DELETE',
+      path:'/playlists/{id}/songs',
+      handler: (request, h) => handler.deleteSongFromPlaylistHandler(request, h)
+    },
+    {
+      method: 'DELETE',
+      path:'/playlists/{id}',
+      handler: (request, h) => handler.deletePlaylistHandler(request, h)
     }
   ];
    

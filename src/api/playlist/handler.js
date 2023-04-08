@@ -56,12 +56,12 @@ class PlaylistHandler {
         const token = req.headers.authorization.split(" ")[1];
         const owner_id = TokenManager.getPayloadFromToken(token).id;
 
-        const playlist = await this._service.getAllPlaylist(owner_id);
+        const playlists = await this._service.getAllPlaylist(owner_id);
         
         const response = h.response({
             status: 'success',
             data: {
-              playlist,
+              playlists,
             },
           });
           response.code(200);
@@ -150,6 +150,86 @@ class PlaylistHandler {
         response.code(200);
         return response;
       } catch(error){
+        if (error instanceof ClientError) {
+          const response = h.response({
+            status: 'fail',
+            message: error.message,
+          });
+          response.code(error.statusCode);
+          return response;
+        }
+        // Server ERROR!
+        const response = h.response({
+          status: 'error',
+          message: 'Maaf, terjadi kegagalan pada server kami.',
+        });
+        response.code(500);
+        console.error(error);
+        return response;
+      }
+    }
+
+    async deleteSongFromPlaylistHandler(req, h){
+      try{
+        if(!req.headers.authorization) throw new AuthenticationError("Anda belum login, silahkan login terlebih dahulu");
+        validatePlaylistSongPayload(req.payload);
+
+        const playlistId = req.params.id;
+        const {songId} = req.payload;
+
+        const ownerId = await this._service.getOwnerIdFromPlaylist(playlistId);
+        const token = req.headers.authorization.split(" ")[1];
+        const user_id = TokenManager.getPayloadFromToken(token).id;
+        if(user_id != ownerId) throw new ForbiddenError("Anda tidak memiliki akses playlist ini");
+        
+        await this._service.deleteSongFromPlaylist(playlistId,songId);
+
+        const response = h.response({
+          status: 'success',
+          message: 'Lagu telah berhasil dihapus'
+        });
+        response.code(200);
+        return response;
+
+      }catch(error){
+        if (error instanceof ClientError) {
+          const response = h.response({
+            status: 'fail',
+            message: error.message,
+          });
+          response.code(error.statusCode);
+          return response;
+        }
+        // Server ERROR!
+        const response = h.response({
+          status: 'error',
+          message: 'Maaf, terjadi kegagalan pada server kami.',
+        });
+        response.code(500);
+        console.error(error);
+        return response;
+      }
+    }
+
+    async deletePlaylistHandler(req, h){
+      try{
+        if(!req.headers.authorization) throw new AuthenticationError("Anda belum login, silahkan login terlebih dahulu");
+
+        const playlistId = req.params.id;
+
+        const ownerId = await this._service.getOwnerIdFromPlaylist(playlistId);
+        const token = req.headers.authorization.split(" ")[1];
+        const user_id = TokenManager.getPayloadFromToken(token).id;
+        if(user_id != ownerId) throw new ForbiddenError("Anda tidak memiliki akses playlist ini");
+
+        await this._service.deletePlaylist(playlistId);
+        const response = h.response({
+          status: 'success',
+          message: 'Lagu telah berhasil dihapus'
+        });
+        response.code(200);
+        return response;
+      }catch(error){
         if (error instanceof ClientError) {
           const response = h.response({
             status: 'fail',

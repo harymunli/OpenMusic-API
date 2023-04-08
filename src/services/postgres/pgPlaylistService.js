@@ -67,6 +67,14 @@ class pgPlaylistService{
         let result = await this._pool.query(query);
         if(!result.rows[0]) throw new NotFoundError("playlist tidak ditemukan");
 
+        query = {
+            text: 'SELECT * FROM song WHERE id = $1',
+            values: [songId]
+        }
+
+        result = await this._pool.query(query);
+        if(!result.rows[0]) throw new NotFoundError("song tidak ditemukan");
+
         const id = nanoid(16);
         query = {
             text: 'Insert into playlist_songs values($1, $2, $3) returning id',
@@ -115,6 +123,32 @@ class pgPlaylistService{
         result1.rows[0].songs =  result2.rows;
 
         return result1.rows[0];
+    }
+
+    async deleteSongFromPlaylist(playlist_id, song_id){
+        let query = {
+            text:'DELETE FROM playlist_songs WHERE playlist_id = $1 AND song_id = $2 RETURNING playlist_id',
+            values: [playlist_id, song_id]
+        }
+        let result = await this._pool.query(query);
+
+        if (!result.rows) {
+          throw new NotFoundError('Song gagal dihapus. Id tidak ditemukan');
+        }
+        return result.rows[0];
+    }
+
+    async deletePlaylist(playlist_id){
+        let query = {
+            text:'DELETE FROM playlist WHERE id = $1',
+            values: [playlist_id]
+        }
+        let result = await this._pool.query(query);
+
+        if (!result.rows) {
+          throw new NotFoundError('Playlist gagal dihapus. Id tidak ditemukan');
+        }
+        return result.rows[0];
     }
 }
 
