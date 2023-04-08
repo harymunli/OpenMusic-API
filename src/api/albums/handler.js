@@ -27,6 +27,7 @@ class AlbumHandler {
                     status: 'fail',
                     message: e.message
                 });
+                response.code(e.statusCode);
                 return response;
             }
             const response = h.response({
