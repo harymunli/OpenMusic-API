@@ -1,6 +1,7 @@
 const BadRequestError = require('../../exception/BadRequestError');
+const ClientError = require('../../exception/ClientError');
 const NotFoundError = require('../../exception/NotFoundError');
-const validateNotePayload = require('../../validator/albums');
+const validateAlbumPayload = require('../../validator/albums');
 
 class AlbumHandler {
     constructor(service){
@@ -9,7 +10,7 @@ class AlbumHandler {
 
     async postAlbumHandler(request, h){
         try{
-            validateNotePayload(request.payload);            
+            validateAlbumPayload(request.payload);            
             const{name, year} = request.payload;
             const albumId = await this._service.addAlbum({ name, year});
             const response = h.response({
@@ -21,7 +22,7 @@ class AlbumHandler {
             response.code(201);
             return response;
         }catch(e){
-            if(e instanceof BadRequestError){
+            if(e instanceof ClientError){
                 const response = h.response({
                     status: 'fail',
                     message: e.message
@@ -90,7 +91,7 @@ class AlbumHandler {
                 response.code(404);
                 return response;
             }
-            response = h.response({
+            const response = h.response({
                 status: 'error',
                 message: e.message
             });

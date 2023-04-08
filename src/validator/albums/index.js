@@ -1,11 +1,11 @@
-const BadReqestError = require('../../exception/BadRequestError');
-const { NotePayloadSchema } = require('./schema');
+const BadRequestError = require('../../exception/BadRequestError');
+const { AlbumPayloadSchema } = require('./schema');
 
-function validateNotePayload(payload) {
-    const validationResult = NotePayloadSchema.validate(payload);
+function validateAlbumPayload(payload) {
+    const validationResult = AlbumPayloadSchema.validate(payload);
     if (validationResult.error) {
-        throw new BadReqestError(validationResult.error.message);
+        throw new BadRequestError(validationResult.error.message);
     }
 }
 
-module.exports = validateNotePayload;
+module.exports = validateAlbumPayload;

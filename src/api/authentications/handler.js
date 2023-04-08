@@ -1,6 +1,6 @@
 const AuthenticationError = require('../../exception/AuthenticationError');
 const BadRequestError = require('../../exception/BadRequestError');
-const AuthenticationsValidator = require('../../validator/Authentications');
+const AuthenticationsValidator = require('../../validator/authentications');
 
 class AuthenticationsHandler {
     constructor(authenticationsService, userService, tokenManager) {

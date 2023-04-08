@@ -2,7 +2,7 @@ require('dotenv').config();
 
 const { Pool } = require('pg');
 const { nanoid } = require('nanoid');
-const BadReqestError = require('../../exception/BadRequestError')
+const BadRequestError = require('../../exception/BadRequestError')
 const NotFoundError = require('../../exception/NotFoundError')
 
 class pgAlbumService {
@@ -27,7 +27,7 @@ class pgAlbumService {
     const result = await this._pool.query(query);
  
     if (!result.rows[0].id) {
-      throw new BadReqestError('Album gagal ditambahkan');
+      throw new BadRequestError('Album gagal ditambahkan');
     }
 
     return result.rows[0].id;

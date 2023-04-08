@@ -1,9 +1,9 @@
 const ClientError = require('./ClientError');
 
 class BadRequestError extends ClientError {
-    constructor(message, statusCode = 400) {
-      super(message);
-      this.statusCode = statusCode;
+    constructor(message) {
+      super(message, 400);
+      this.statusCode = 400;
       this.name = 'BadReqestError';
     }
 }
