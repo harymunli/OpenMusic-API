@@ -24,6 +24,10 @@ const pgAuthenticationService = require('./services/postgres/pgAuthenticationSer
 const playlists = require('./api/playlist');
 const pgPlaylistService = require('./services/postgres/pgPlaylistService');
 
+// Exports
+const _exports = require('./api/exports');
+const ProducerService = require('./services/rabbitmq/ProducerService');
+
 const init = async () => {
   const albumService = new pgAlbumService();
   const songService = new pgSongService();
@@ -97,7 +101,14 @@ const init = async () => {
         userService,
         tokenManager: TokenManager
       }
-    }
+    },
+    {
+      plugin: _exports,
+      options: {
+        service: ProducerService,
+        service2: playlistService
+      },
+    },
 ]);
 
   await server.start();
