@@ -3,7 +3,6 @@ const ExportsValidator = require('../../validator/exports');
 const AuthenticationError = require('../../exception/AuthenticationError');
 const TokenManager = require('../../tokenize/TokenManager');
 const pgPlaylistService = require('../../services/postgres/pgPlaylistService');
-const NotFoundError = require('../../exception/NotFoundError');
 const ForbiddenError = require('../../exception/ForbiddenError');
 
 class ExportsHandler {
@@ -22,7 +21,6 @@ class ExportsHandler {
             const playlist_id = request.params.playlistId;
             
             // 403 forbidden error
-            console.log()
             const owner_id = await this._service2.getOwnerIdFromPlaylist(playlist_id);
             if (user_id != owner_id) throw new ForbiddenError('Anda tidak memiliki akses playlist ini');
 
