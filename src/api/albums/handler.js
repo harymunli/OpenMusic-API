@@ -133,6 +133,13 @@ class AlbumHandler {
             return response;
         }
     }
+
+    async postAlbumCoverIdHandler(request, h){
+        //const { cover } = request.payload;
+        console.log(request.payload);
+ 
+      return { message: 'Anda berhasil melakukan request' }
+    }
 }
 
 module.exports = AlbumHandler;

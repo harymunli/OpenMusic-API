@@ -25,7 +25,7 @@ class ExportsHandler {
             if (user_id != owner_id) throw new ForbiddenError('Anda tidak memiliki akses playlist ini');
 
             const message = {
-                userId: user_id,
+                playlistId: playlist_id,
                 targetEmail: request.payload.targetEmail,
             };
             await this._service.sendMessage('export:playlist', JSON.stringify(message));

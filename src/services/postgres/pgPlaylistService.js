@@ -120,7 +120,7 @@ class pgPlaylistService{
             throw new NotFoundError('Playlist tidak ditemukan');
         }
 
-        result1.rows[0].songs =  result2.rows;
+        result1.rows[0]['songs'] =  result2.rows;
 
         return result1.rows[0];
     }
