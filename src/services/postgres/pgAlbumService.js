@@ -70,7 +70,25 @@ class pgAlbumService {
     if (!result.rows.length) {
       throw new NotFoundError('Album gagal dihapus. Id tidak ditemukan');
     }
-  }  
+  }
+  
+  async addCoverURLToAlbum(filename, id){
+    const query = {
+      name: 'add-cover-album',
+      text: `UPDATE album SET coverurl = \'http://$1:$2/albums/images/$3\' WHERE id = \'$4\'`,
+      values: [process.env.HOST, process.env.PORT, filename, id]
+    }
+
+    await this._pool.query(query, (err, res) => {
+      if (err) {
+        console.log(err.stack)
+      } else {
+        if (!res.rows.length) {
+          throw new NotFoundError('Album tidak ditemukan');
+        }
+      }
+    })
+  } 
 }
 
 module.exports = pgAlbumService;

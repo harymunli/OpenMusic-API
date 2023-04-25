@@ -16,5 +16,5 @@ exports.up = pgm => {
 };
 
 exports.down = pgm => {
-    pgm.dropColumn("album", {coverUrl});
+    pgm.dropColumns("album", ["coverUrl"]);
 };

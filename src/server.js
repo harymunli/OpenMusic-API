@@ -1,4 +1,5 @@
 require('dotenv').config();
+const path = require('path');
 
 const Hapi = require('@hapi/hapi');
 const Jwt = require('@hapi/jwt');
@@ -7,6 +8,8 @@ const Inert = require('@hapi/inert');
 // Album
 const albums = require('./api/albums');
 const pgAlbumService = require('./services/postgres/pgAlbumService');
+const StorageService = require('./services/storage/StorageService');
+
 
 // Song
 const songs = require('./api/songs');
@@ -35,6 +38,8 @@ const init = async () => {
   const userService = new pgUserService();
   const authenticationsService = new pgAuthenticationService();
   const playlistService = new pgPlaylistService();
+  const storageService = new StorageService(path.resolve(__dirname, 'api/albums/file/cover'))
+
 
   const server = Hapi.server({
     port: process.env.PORT,
@@ -77,7 +82,8 @@ const init = async () => {
     {
       plugin: albums,
       options: {
-        service: albumService
+        service1: albumService,
+        service2: storageService,
       }
     },
     {

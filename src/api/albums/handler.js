@@ -1,11 +1,12 @@
-const BadRequestError = require('../../exception/BadRequestError');
+const { response } = require('@hapi/hapi/lib/validation');
 const ClientError = require('../../exception/ClientError');
 const NotFoundError = require('../../exception/NotFoundError');
-const validateAlbumPayload = require('../../validator/albums');
+const {validateAlbumPayload, validateImageHeaders} = require('../../validator/albums');
 
 class AlbumHandler {
-    constructor(service){
+    constructor(service, service2){
         this._service = service;
+        this._service2 = service2;
     }
 
     async postAlbumHandler(request, h){
@@ -135,10 +136,35 @@ class AlbumHandler {
     }
 
     async postAlbumCoverIdHandler(request, h){
-        //const { cover } = request.payload;
-        console.log(request.payload);
- 
-      return { message: 'Anda berhasil melakukan request' }
+        try {
+            const file = request.payload;
+            validateImageHeaders(file.cover.hapi.headers);
+            const filename = await this._service2.writeFile(file.cover, file.cover.hapi.filename);
+            //await this._service.addCoverURLToAlbum(filename, request.params);
+
+            const response = h.response({
+                status: 'success',
+                message: "Permintaan Anda sedang kami proses",
+            });
+            response.code(201);
+            return response;          
+        } catch (error){
+            if (error instanceof ClientError) {
+                const response = h.response({
+                    status: 'fail',
+                    message: error.message,
+                })
+                response.code(error.statusCode);
+                return response;
+            }
+            const response = h.response({
+                status: 'error',
+                message: 'Maaf, terjadi kegagalan pada server kami.',
+              });
+              response.code(500);
+              console.error(error);
+              return response;
+        }
     }
 }
 
