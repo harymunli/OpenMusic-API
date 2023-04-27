@@ -75,7 +75,7 @@ class pgAlbumService {
   async addCoverURLToAlbum(filename, id){
     const query = {
       name: 'add-cover-album',
-      text: `UPDATE album SET coverurl = \'http://$1:$2/albums/images/$3\' WHERE id = \'$4\'`,
+      text: `UPDATE album SET "coverUrl" = 'http://' || $1 || ':' || $2 || '/albums/images/' || $3 WHERE id = $4;`,
       values: [process.env.HOST, process.env.PORT, filename, id]
     }
 
@@ -88,7 +88,24 @@ class pgAlbumService {
         }
       }
     })
-  } 
+  }
+  
+
+  async addRowToUserAlbumLike(user_id, album_id){
+    let res = await this.getAlbumById(album_id);
+    if (!res.rows.length) throw new NotFoundError('Album tidak ditemukan');
+
+    id = nanoid(16);
+    query = {
+      text: 'INSERT INTO user_album_likes VALUES($1, $2, $3) RETURNING id',
+      values: [id, user_id, album_id]
+    }
+
+    res = await this._pool.query(query);
+    console.log(res);
+
+    if (!res.rows.length) throw new NotFoundError('Album tidak ditemukan');
+  }
 }
 
 module.exports = pgAlbumService;

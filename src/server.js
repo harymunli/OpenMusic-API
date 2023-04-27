@@ -84,6 +84,7 @@ const init = async () => {
       options: {
         service1: albumService,
         service2: storageService,
+        tokenManager: TokenManager
       }
     },
     {

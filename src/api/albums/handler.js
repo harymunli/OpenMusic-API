@@ -1,7 +1,10 @@
-const { response } = require('@hapi/hapi/lib/validation');
+const { response, params } = require('@hapi/hapi/lib/validation');
 const ClientError = require('../../exception/ClientError');
 const NotFoundError = require('../../exception/NotFoundError');
+const AuthenticationError = require('../../exception/AuthenticationError');
 const {validateAlbumPayload, validateImageHeaders} = require('../../validator/albums');
+const TokenManager = require('../../tokenize/TokenManager');
+
 
 class AlbumHandler {
     constructor(service, service2){
@@ -140,7 +143,7 @@ class AlbumHandler {
             const file = request.payload;
             validateImageHeaders(file.cover.hapi.headers);
             const filename = await this._service2.writeFile(file.cover, file.cover.hapi.filename);
-            //await this._service.addCoverURLToAlbum(filename, request.params);
+            await this._service.addCoverURLToAlbum(filename, request.params.id);
 
             const response = h.response({
                 status: 'success',
@@ -164,6 +167,43 @@ class AlbumHandler {
               response.code(500);
               console.error(error);
               return response;
+        }
+    }
+
+    async postAlbumLikeHandler(req, h){
+        try{
+            const album_id =  req.params;
+            if(!req.headers.authorization) throw new AuthenticationError("Anda belum login, silahkan login terlebih dahulu");
+            
+            const token = req.headers.authorization.split(" ")[1];
+            const user_id = await TokenManager.getPayloadFromToken(token).id;
+
+            await this._service.addRowToUserAlbumLike(user_id, {album_id})
+            
+            const response = h.response({
+                status: 'success',
+                message: "Like berhasil"
+              });
+              response.code(201);
+              return response;
+        } catch(error) {
+          if (error instanceof ClientError) {
+              const response = h.response({
+                status: 'fail',
+                message: error.message,
+              });
+              response.code(error.statusCode);
+              return response;
+            }
+        
+            // Server ERROR!
+            const response = h.response({
+              status: 'error',
+              message: 'Maaf, terjadi kegagalan pada server kami.',
+            });
+            response.code(500);
+            console.error(error);
+            return response;
         }
     }
 }

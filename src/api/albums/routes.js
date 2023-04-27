@@ -42,7 +42,12 @@ const routes = (handler) => [
           path: path.join(__dirname, 'api/albums/file/cover'),
         }
       },
-    }
+    },
+    {
+      method: 'POST',
+      path: '/albums/{id}/likes',
+      handler: (request, h) => handler.postAlbumLikeHandler(request, h)
+    },
   ];
 
 module.exports = routes;
