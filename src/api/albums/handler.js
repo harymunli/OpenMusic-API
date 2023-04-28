@@ -172,13 +172,13 @@ class AlbumHandler {
 
     async postAlbumLikeHandler(req, h){
         try{
-            const album_id =  req.params;
+            const album_id =  req.params.id;
             if(!req.headers.authorization) throw new AuthenticationError("Anda belum login, silahkan login terlebih dahulu");
             
             const token = req.headers.authorization.split(" ")[1];
             const user_id = await TokenManager.getPayloadFromToken(token).id;
 
-            await this._service.addRowToUserAlbumLike(user_id, {album_id})
+            await this._service.addRowToUserAlbumLike(user_id, album_id)
             
             const response = h.response({
                 status: 'success',

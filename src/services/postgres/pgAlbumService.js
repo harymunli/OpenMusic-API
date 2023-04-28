@@ -4,6 +4,7 @@ const { Pool } = require('pg');
 const { nanoid } = require('nanoid');
 const BadRequestError = require('../../exception/BadRequestError')
 const NotFoundError = require('../../exception/NotFoundError')
+const TokenManager = require('../../tokenize/TokenManager');
 
 class pgAlbumService {
   constructor() {
@@ -35,10 +36,12 @@ class pgAlbumService {
 
   async getAlbumById(id) {
     const query = {
-      text: 'SELECT * FROM Album WHERE id = $1',
+      text: 'SELECT * FROM album WHERE id = $1',
       values: [id],
     };
+    //console.log(id);
     const result = await this._pool.query(query);
+    //console.log(result);
     if (!result.rows.length) {
       throw new NotFoundError('Album tidak ditemukan');
     }
@@ -90,21 +93,30 @@ class pgAlbumService {
     })
   }
   
+  async getUserAlbumLikes(user_id, album_id){
+    let query = {
+      text: 'SELECT * FROM user_album_likes where user_id = $1 and album_id = $2',
+      values: [user_id, album_id]
+    }
+      
+    let res = await this._pool.query(query);
+    return res;
+  }
 
   async addRowToUserAlbumLike(user_id, album_id){
     let res = await this.getAlbumById(album_id);
-    if (!res.rows.length) throw new NotFoundError('Album tidak ditemukan');
+    if (!res) throw new NotFoundError('Id Album salah, silahkan input lagi');
 
-    id = nanoid(16);
-    query = {
+    let albumLike = await this.getUserAlbumLikes(user_id, album_id);
+    if (albumLike.rows.length) throw new BadRequestError('tidak bisa like lebih dari 1 kali');
+
+    let id = nanoid(16);
+    let query = {
       text: 'INSERT INTO user_album_likes VALUES($1, $2, $3) RETURNING id',
       values: [id, user_id, album_id]
     }
 
     res = await this._pool.query(query);
-    console.log(res);
-
-    if (!res.rows.length) throw new NotFoundError('Album tidak ditemukan');
   }
 }
 

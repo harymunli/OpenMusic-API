@@ -14,6 +14,16 @@ const TokenManager = {
             throw new BadRequestError;
         }
     },
+    verifyAccessToken: (access_token) => {
+        try{
+            const artifacts = Jwt.token.decode(access_token);
+            Jwt.token.verifySignature(artifacts, process.env.ACCESS_TOKEN_KEY);
+            const { payload } = artifacts.decoded;
+            return payload;
+        }catch(e){
+            throw new BadRequestError;
+        }
+    },
     // TODO Implement sistem token sudah kadaluarsa dan diberi access token yang baru
     getPayloadFromToken: (access_token) =>{
         const artifacts = Jwt.token.decode(access_token);
