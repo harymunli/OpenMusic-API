@@ -4,7 +4,7 @@ const { Pool } = require('pg');
 const { nanoid } = require('nanoid');
 const BadRequestError = require('../../exception/BadRequestError')
 const NotFoundError = require('../../exception/NotFoundError')
-const TokenManager = require('../../tokenize/TokenManager');
+const CacheService =  require('../redis/CacheService')
 
 class pgAlbumService {
   constructor() {
@@ -15,6 +15,7 @@ class pgAlbumService {
       password: process.env.PGPASSWORD,
       port: process.env.PGPORT
     });
+    this._cacheService = new CacheService();
   }
  
   async addAlbum({name, year}) {
@@ -117,6 +118,33 @@ class pgAlbumService {
     }
 
     res = await this._pool.query(query);
+  }
+
+  async getLikes(albumId) {
+    try {
+      const result = await this._cacheService.get(`likes:${albumId}`);
+      return [result, true];
+    } catch (error) {
+      const query = {
+        text: 'SELECT count(*) FROM user_album_likes WHERE album_id = $1',
+        values: [albumId],
+      };
+      const result = await this._pool.query(query);
+      await this._cacheService.set(`likes:${albumId}`, result.rows[0].count);
+      return [result.rows[0].count, false];
+    }
+  }
+
+  async deleteLikes(albumId, user_id) {
+    const query = {
+      text: 'DELETE FROM user_album_likes WHERE album_id = $1 and user_id = $2',
+      values: [albumId, user_id],
+    };
+    await this._pool.query(query);
+
+    let result = await this._cacheService.get(`likes:${albumId}`);
+    let new_res = result -= 1;
+    await this._cacheService.set(`likes:${albumId}`, new_res);
   }
 }
 

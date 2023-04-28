@@ -206,6 +206,53 @@ class AlbumHandler {
             return response;
         }
     }
+    async getAlbumLikesHandler(request, h){
+        const { id } = request.params;
+        await this._service.getAlbumById(id);
+        const [result, cache] = await this._service.getLikes(id);
+
+        const response = h.response({
+            status: 'success',
+            data: {
+                likes: parseInt(result, 10),
+            },
+            });
+        if (cache) {
+            response.header('X-Data-Source', 'cache');
+        }
+        return response;
+    }
+    async deleteAlbumLikesHandler(request, h){
+        try{
+            const { id } = request.params;
+            const token = request.headers.authorization.split(" ")[1];
+            const user_id = await TokenManager.getPayloadFromToken(token).id;
+            await this._service.deleteLikes(id, user_id)
+            const response = h.response({
+                status: 'success',
+                message: 'unlike berhasil',
+            });
+            return response;
+        }catch(error){
+            if (error instanceof ClientError) {
+                const response = h.response({
+                  status: 'fail',
+                  message: error.message,
+                });
+                response.code(error.statusCode);
+                return response;
+              }
+          
+              // Server ERROR!
+              const response = h.response({
+                status: 'error',
+                message: 'Maaf, terjadi kegagalan pada server kami.',
+              });
+              response.code(500);
+              console.error(error);
+              return response;
+        }
+    }
 }
 
 module.exports = AlbumHandler;
