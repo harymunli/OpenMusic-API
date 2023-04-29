@@ -1,4 +1,5 @@
-const path = require('path');
+const { request } = require('http');
+const Path = require('path');
 
 const routes = (handler) => [
     {
@@ -36,12 +37,11 @@ const routes = (handler) => [
     },
     {
       method: 'GET',
-      path: '/albums/cover/{param*}',
-      handler: {
-        directory: {
-          path: path.join(__dirname, 'api/albums/file/cover'),
-        }
-      },
+      path: '/albums/images/{filename*}',
+      handler: (request, h) => {
+        const filename = request.params.filename;
+        return h.file(Path.join(__dirname, 'file/cover', filename));
+      }
     },
     {
       method: 'POST',

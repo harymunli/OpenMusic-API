@@ -83,15 +83,10 @@ class pgAlbumService {
       values: [process.env.HOST, process.env.PORT, filename, id]
     }
 
-    await this._pool.query(query, (err, res) => {
-      if (err) {
-        console.log(err.stack)
-      } else {
-        if (!res.rows.length) {
-          throw new NotFoundError('Album tidak ditemukan');
-        }
-      }
-    })
+    let res = await this._pool.query(query)
+    if (!res.rows.length) {
+      throw new NotFoundError('Album tidak ditemukan');
+    }
   }
   
   async getUserAlbumLikes(user_id, album_id){
@@ -130,6 +125,7 @@ class pgAlbumService {
         values: [albumId],
       };
       const result = await this._pool.query(query);
+      console.log(result);
       await this._cacheService.set(`likes:${albumId}`, result.rows[0].count);
       return [result.rows[0].count, false];
     }
@@ -142,9 +138,7 @@ class pgAlbumService {
     };
     await this._pool.query(query);
 
-    let result = await this._cacheService.get(`likes:${albumId}`);
-    let new_res = result -= 1;
-    await this._cacheService.set(`likes:${albumId}`, new_res);
+    await this._cacheService.delete(`likes:${albumId}`);
   }
 }
 

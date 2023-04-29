@@ -40,7 +40,6 @@ const init = async () => {
   const playlistService = new pgPlaylistService();
   const storageService = new StorageService(path.resolve(__dirname, 'api/albums/file/cover'))
 
-
   const server = Hapi.server({
     port: process.env.PORT,
     host: process.env.HOST,
